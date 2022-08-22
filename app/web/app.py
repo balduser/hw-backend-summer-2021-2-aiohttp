@@ -5,6 +5,9 @@ from aiohttp.web import (
     View as AiohttpView,
     Request as AiohttpRequest,
 )
+from aiohttp_apispec import setup_aiohttp_apispec as setup_apispec
+from aiohttp_session import setup as setup_session
+from aiohttp_session.cookie_storage import EncryptedCookieStorage
 
 from app.admin.models import Admin
 from app.store import setup_store, Store
@@ -49,7 +52,9 @@ app = Application()
 def setup_app(config_path: str) -> Application:
     setup_logging(app)
     setup_config(app, config_path)
-    setup_routes(app)
-    setup_middlewares(app)
+    setup_session(app, EncryptedCookieStorage(app.config.session.key))
     setup_store(app)
+    setup_middlewares(app)
+    setup_routes(app)
+    setup_apispec(app, title='KTS Homework 2', url='/docs/json', swagger_path='/docs')
     return app
